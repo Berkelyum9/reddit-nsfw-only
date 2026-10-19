@@ -11,7 +11,6 @@
 package io.github.redditnsfwonly.patches
 
 import app.morphe.patcher.patch.ApkFileType
-import app.morphe.patcher.patch.AppTarget
 import app.morphe.patcher.patch.Compatibility
 
 internal object Constants {
@@ -23,11 +22,9 @@ internal object Constants {
         signatures = setOf(
             "970b91143813b4c9d5f3634f672c9fcaa5621b4efaaedafd6c235cbbb869736f"
         ),
-        targets = listOf(
-            AppTarget(
-                version = "2026.39.0",
-                minSdk = 29
-            )
-        )
+        // No explicit version targets: let Morphe attempt the fingerprints on newer
+        // Reddit releases too. This is not a claim that every version is compatible:
+        // changed internals should still cause required fingerprints to fail safely.
+        targets = emptyList()
     )
 }
