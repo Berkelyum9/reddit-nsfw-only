@@ -100,9 +100,7 @@ internal object SafeSearchEnabledFingerprint : Fingerprint(
 )
 
 internal object NsfwHomeFeedPageFingerprint : Fingerprint(
-    // In Reddit 2026.39.0 the page mapper is R8-renamed to Lseo;->c. The HOME enum
-    // access plus this three-argument signature uniquely identifies the mapper even
-    // though Reddit no longer preserves its original package name.
+    definingClass = "Lcom/reddit/feeds/home/impl/data/paging/",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     parameters = listOf("L", "Ljava/lang/Integer;", "L"),
     filters = listOf(
