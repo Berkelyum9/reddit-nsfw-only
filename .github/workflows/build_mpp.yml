@@ -4,7 +4,7 @@ run-name: Build Reddit NSFW Only bundle
 on:
   workflow_dispatch:
   push:
-    branches: [ main, feature/v020-all-feeds-copy ]
+    branches: [ main, feature/v020-all-feeds-copy, feature/reddit-2026.24 ]
 
 permissions:
   contents: write
