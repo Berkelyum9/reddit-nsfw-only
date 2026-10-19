@@ -54,41 +54,58 @@ val nsfwOnlyPatch = bytecodePatch(
     execute {
         val logger = Logger.getLogger(this::class.java.name)
 
-        AccountPreferencesGetOver18Fingerprint.method.addInstructions(
-            0,
-            """
-                iget-boolean p0, p0, $ACCOUNT_PREFERENCES_CLASS->over18:Z
-                invoke-static { p0 }, $EXTENSION_CLASS->getAccountOver18(Z)Z
-                move-result p0
-                return p0
-            """
-        )
-        AccountPreferencesGetSearchIncludeOver18Fingerprint.method.returnEarly(true)
+        runCatching {
+            AccountPreferencesGetOver18Fingerprint.matchOrNull()?.method?.addInstructions(
+                0,
+                """
+                    iget-boolean p0, p0, $ACCOUNT_PREFERENCES_CLASS->over18:Z
+                    invoke-static { p0 }, $EXTENSION_CLASS->getAccountOver18(Z)Z
+                    move-result p0
+                    return p0
+                """
+            ) ?: logger.warning("Could not force the account mature-content getter")
+        }.onFailure { logger.warning("Account mature-content getter hook failed: $it") }
 
-        PreferenceRepositoryIsOver18Fingerprint.method.addInstructions(
-            0,
-            """
-                invoke-static { p0 }, $EXTENSION_CLASS->setPreferenceRepository(Ljava/lang/Object;)V
-                const/4 v0, 0x1
-                return v0
-            """
-        )
+        runCatching {
+            AccountPreferencesGetSearchIncludeOver18Fingerprint.matchOrNull()?.method?.returnEarly(true)
+                ?: logger.warning("Could not force mature content into search preferences")
+        }.onFailure { logger.warning("Search preference hook failed: $it") }
 
-        PreferenceRepositorySetOver18Fingerprint.method.addInstruction(0, "const/4 p1, 0x1")
+        runCatching {
+            PreferenceRepositoryIsOver18Fingerprint.matchOrNull()?.method?.addInstructions(
+                0,
+                """
+                    invoke-static { p0 }, $EXTENSION_CLASS->setPreferenceRepository(Ljava/lang/Object;)V
+                    const/4 v0, 0x1
+                    return v0
+                """
+            ) ?: logger.warning("Could not force the local mature-content preference")
+        }.onFailure { logger.warning("Local mature-content preference hook failed: $it") }
 
-        PreferenceRepositoryIsBlurNsfwFingerprint.matchOrNull()?.method?.returnEarly(false)
+        runCatching {
+            PreferenceRepositorySetOver18Fingerprint.matchOrNull()?.method?.addInstruction(0, "const/4 p1, 0x1")
+                ?: logger.warning("Could not force mature content on when settings are changed")
+        }.onFailure { logger.warning("Mature-content setter hook failed: $it") }
+
+        runCatching { PreferenceRepositoryIsBlurNsfwFingerprint.matchOrNull() }
+            .getOrNull()?.method?.returnEarly(false)
             ?: logger.warning("Could not force NSFW image blurring off")
 
-        SafeSearchStoredValueFingerprint.matchOrNull()?.let {
-            val safeSearchOff = """
-                sget-object p0, Lcom/reddit/domain/SafeSearch;->Off:Lcom/reddit/domain/SafeSearch;
-                return-object p0
-            """
+        runCatching { SafeSearchStoredValueFingerprint.matchOrNull() }
+            .getOrNull()?.let { stored ->
+                val safeSearchOff = """
+                    sget-object p0, Lcom/reddit/domain/SafeSearch;->Off:Lcom/reddit/domain/SafeSearch;
+                    return-object p0
+                """
 
-            it.method.addInstructions(0, safeSearchOff)
-            SafeSearchValueFingerprint.method.addInstructions(0, safeSearchOff)
-            SafeSearchEnabledFingerprint.method.returnEarly(false)
-        } ?: logger.warning("Could not find the safe search repository")
+                stored.method.addInstructions(0, safeSearchOff)
+                runCatching { SafeSearchValueFingerprint.matchOrNull() }
+                    .getOrNull()?.method?.addInstructions(0, safeSearchOff)
+                    ?: logger.warning("Could not force the stored safe-search value off")
+                runCatching { SafeSearchEnabledFingerprint.matchOrNull() }
+                    .getOrNull()?.method?.returnEarly(false)
+                    ?: logger.warning("Could not force the safe-search enabled flag off")
+            } ?: logger.warning("Could not find the safe search repository")
 
         listOf("key_pref_over18", "key_pref_blur_nsfw").forEach { key ->
             runCatching { settingsItemSessionsFingerprint(key).matchOrNull() }
@@ -123,12 +140,14 @@ val nsfwOnlyPatch = bytecodePatch(
             NsfwAllFeedPageFingerprint,
             NsfwSubredditFeedPageFingerprint
         ).forEach { fingerprint ->
-            fingerprint.matchOrNull()?.method?.addInstructions(
-                0,
-                """
-                    invoke-static/range { p1 .. p1 }, $EXTENSION_CLASS->filterHomeFeedResponse(Ljava/lang/Object;)V
-                """
-            )
+            runCatching { fingerprint.matchOrNull() }
+                .onFailure { logger.warning("Optional feed fingerprint failed: $it") }
+                .getOrNull()?.method?.addInstructions(
+                    0,
+                    """
+                        invoke-static/range { p1 .. p1 }, $EXTENSION_CLASS->filterHomeFeedResponse(Ljava/lang/Object;)V
+                    """
+                ) ?: logger.info("An optional feed hook was not found; Home filtering remains enabled.")
         }
 
         runCatching { ListingFingerprint.matchOrNull() }
