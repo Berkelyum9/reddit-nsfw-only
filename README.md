@@ -53,10 +53,7 @@ the modern Home hook added here is a separate GraphQL page-builder path.
 
 ## Build and publishing
 
-GitHub Actions runs the Android-free scanner/filter tests, builds the Morphe
-bundle, verifies it contains `classes.dex`, uploads the workflow artifact, and
-publishes the matching `.mpp` as a GitHub Release asset used by
-`patches-bundle.json`.
+GitHub Actions runs on pushes to `main` (and can be started manually), runs the Android-free scanner/filter tests, builds the Morphe bundle, verifies it contains `classes.dex`, uploads the workflow artifact, and publishes the matching `.mpp` as a GitHub Release asset used by `patches-bundle.json`.
 
 ## Origin / license
 
