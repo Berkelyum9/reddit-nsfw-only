@@ -22,7 +22,7 @@ public final class BlockNsfwContentPatch {
     private static final String TAG = "RedditNsfwOnly";
 
     private static final String SET_OVER_18_LAMBDA_CLASS =
-            "com.reddit.account.repository.RedditPreferenceRepository$setOver18$2";
+            "com.reddit.account.repository.RedditPreferenceRepository$setOver18$1";
     private static final long ACCOUNT_SYNC_DELAY_MILLISECONDS = 5000;
 
     private static volatile Object preferenceRepository;
@@ -54,6 +54,8 @@ public final class BlockNsfwContentPatch {
                 Log.i(TAG, "Turning on account 'Show mature content'");
                 runSetOver18(repository);
             } catch (Exception ex) {
+                // Permit a later getter call to retry if Reddit changed its coroutine shape.
+                accountSyncStarted.set(false);
                 Log.e(TAG, "Could not turn on account 'Show mature content'", ex);
             }
         }, "reddit-nsfw-only");
@@ -98,7 +100,18 @@ public final class BlockNsfwContentPatch {
                 });
 
         Object lambda = constructor.newInstance(repository, true, null);
-        Method invoke = lambdaClass.getMethod("invoke", Object.class);
+        Method invoke = null;
+        for (Method method : lambdaClass.getMethods()) {
+            if (!"invoke".equals(method.getName()) || method.getParameterCount() != 1) continue;
+            if (method.getParameterTypes()[0].isInstance(completion)
+                    || method.getParameterTypes()[0] == Object.class) {
+                invoke = method;
+                break;
+            }
+        }
+        if (invoke == null) {
+            throw new IllegalStateException("Could not find a compatible invoke method on " + lambdaClass.getName());
+        }
         invoke.setAccessible(true);
         invoke.invoke(lambda, completion);
     }
@@ -120,8 +133,8 @@ public final class BlockNsfwContentPatch {
             }
             return filtered == null ? list : filtered;
         } catch (Exception ex) {
-            Log.e(TAG, "filterLinks failure", ex);
-            return list;
+            Log.e(TAG, "filterLinks failure; returning an empty list to avoid leaking unclassified posts", ex);
+            return java.util.Collections.emptyList();
         }
     }
 
