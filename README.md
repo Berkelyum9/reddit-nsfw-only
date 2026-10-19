@@ -2,6 +2,8 @@
 
 **Maintainer:** [Berkelyum9](https://github.com/Berkelyum9)
 
+**Development assistance:** This project has been developed with assistance from [ChatGPT by OpenAI](https://chatgpt.com/), including troubleshooting, code changes, and GitHub workflow support. Project ownership and maintenance remain with Berkelyum9.
+
 Reddit NSFW Only is an independently maintained Morphe patch bundle for Reddit on Android. Its goal is to show NSFW posts only, rather than block NSFW posts.
 
 ## Add to Morphe
