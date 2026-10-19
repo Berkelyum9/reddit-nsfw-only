@@ -131,10 +131,10 @@ val nsfwOnlyPatch = bytecodePatch(
             )
         }
 
-        fun filterListing(fingerprint: Fingerprint) {
-            fingerprint.let {
-                it.method.apply {
-                    val index = it.instructionMatches.first().index
+        runCatching { ListingFingerprint.matchOrNull() }
+            .getOrNull()?.let { match ->
+                match.method.apply {
+                    val index = match.instructionMatches.first().index
                     val register = getInstruction<TwoRegisterInstruction>(index).registerA
                     addInstructions(
                         index,
@@ -144,10 +144,6 @@ val nsfwOnlyPatch = bytecodePatch(
                         """
                     )
                 }
-            }
-        }
-        runCatching { ListingFingerprint.matchOrNull() }
-            .getOrNull()?.let { filterListing(it) }
-            ?: logger.warning("Could not match the legacy Listing constructor; skipping that filter.")
+            } ?: logger.warning("Could not match the legacy Listing constructor; skipping that filter.")
     }
 }
