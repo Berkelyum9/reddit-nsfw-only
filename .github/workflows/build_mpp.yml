@@ -72,7 +72,7 @@ jobs:
             --notes "Morphe patch bundle for Reddit NSFW Only v$VERSION."
 
       - name: Publish new experimental GitHub prerelease (never overwrite an existing version)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/all-feeds-nsfw-only'
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/feature/all-feeds-nsfw-only' || github.ref == 'refs/heads/fix/preserve-v020-core')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -88,4 +88,4 @@ jobs:
           fi
           gh release create "$TAG" "$ASSET" --target "$GITHUB_SHA" --prerelease \
             --title "Reddit NSFW Only v$VERSION (experimental)" \
-            --notes "Experimental Morphe patch bundle built from feature/all-feeds-nsfw-only. Filtering outside Home and compatibility with newer Reddit versions are not yet verified."
+            --notes "Experimental Morphe patch bundle preserving the known-good v0.2.0 Home fingerprint and adding optional feed filters. Filtering outside Home is not yet verified."
