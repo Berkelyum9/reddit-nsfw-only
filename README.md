@@ -41,9 +41,19 @@ fullname plus an NSFW enum whose type also contains `ORIGINAL`,
 `QUARANTINED` and `SPOILER`. This avoids false positives from unrelated
 Reddit enums that also contain an `NSFW` member.
 
-## Supported target
+## Compatibility
 
-Reddit `2026.39.0` (`com.reddit.frontpage`).
+Target app: Reddit Android (`com.reddit.frontpage`).
+
+The patch source now allows Morphe to **attempt** patching newer Reddit versions
+instead of listing only `2026.39.0`. This is experimental compatibility, not
+a guarantee that a future version will work: Reddit can rename or restructure
+methods, and required fingerprints may still fail. A successful bundle build
+only verifies compilation; each new Reddit version needs its own APK-level
+fingerprint and on-device feed checks before it can be called verified.
+
+The expanded Popular/Latest hooks on the development branch are also
+experimental and are not yet confirmed to filter those screens correctly.
 
 ## Compatibility with other Morphe patches
 
@@ -53,7 +63,10 @@ the modern Home hook added here is a separate GraphQL page-builder path.
 
 ## Build and publishing
 
-GitHub Actions runs on pushes to `main` (and can be started manually), runs the Android-free scanner/filter tests, builds the Morphe bundle, verifies it contains `classes.dex`, uploads the workflow artifact, and publishes the matching `.mpp` as a GitHub Release asset used by `patches-bundle.json`.
+GitHub Actions runs on pushes to `main` (and can be started manually), runs the
+Android-free scanner/filter tests, builds the Morphe bundle, verifies it
+contains `classes.dex`, uploads the workflow artifact, and publishes the
+matching `.mpp` as a GitHub Release asset used by `patches-bundle.json`.
 
 ## Origin / license
 
