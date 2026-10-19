@@ -103,11 +103,9 @@ internal object NsfwHomeFeedPageFingerprint : Fingerprint(
     definingClass = "Lcom/reddit/feeds/home/impl/data/paging/",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     parameters = listOf("L", "Ljava/lang/Integer;", "L"),
-    filters = listOf(
-        fieldAccess(
-            smali = "Lcom/reddit/feeds/data/FeedType;->HOME:Lcom/reddit/feeds/data/FeedType;"
-        )
-    )
+    // Reddit has moved the FeedType access around between builds. Keep the stable
+    // page-builder package and method signature as the anchor; requiring a specific
+    // enum field access caused this fingerprint to fail on Reddit 2026.39.0.
 )
 
 /**
