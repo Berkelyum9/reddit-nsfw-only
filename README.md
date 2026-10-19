@@ -1,66 +1,34 @@
 # Reddit NSFW Only
 
-An experimental Morphe patch bundle for Reddit Android that deliberately does
-the inverse of `warleysr/reddit-nsfw-blocker`.
+An independent Morphe patch project maintained in **Berkelyum9/reddit-nsfw-only**.
+It keeps only posts that Reddit positively identifies as 18+ content.
 
-## Add to Morphe
+## Current compatibility test
 
-Add this repository as a **Remote** patch source:
+- Target APK: Reddit Android **2026.24.0**
+- Package: `com.reddit.frontpage`
+- Test version: **0.2.6**
+- Status: experimental; a successful build does not by itself prove the patch applies or filters every screen correctly.
 
-```text
-https://github.com/nathan8ate-droid/reddit-nsfw-only
-```
+## Intended behaviour
 
-Morphe resolves `patches-bundle.json` from `main` and can update the source
-automatically when a newer bundle is published.
+- Preserve the working Home-feed filtering behaviour.
+- Keep only confirmed NSFW posts in supported GraphQL feeds, including Search, Latest, Subreddit feeds and profile submissions when their actual mapper is found.
+- Apply the same strict NSFW-only policy to legacy listing-backed screens where the legacy constructor is present.
+- Attempt to enable mature content, disable NSFW blur and turn off safe search. These preference hooks are optional so a changed settings method does not prevent the feed filter from applying.
 
-## Behaviour
+Unknown feed mappers are logged/skipped rather than treated as proof that a screen is filtered. The target APK must still be tested in Morphe to confirm runtime compatibility.
 
-- Forces **Show mature content (I'm over 18)** on locally and attempts to sync it
-  through Reddit's own preference repository.
-- Includes mature content in search.
-- Forces NSFW image blurring off and safe search off.
-- **Modern Home:** filters Reddit's GraphQL cell response before it becomes feed
-  elements, keeping only posts carrying Reddit's post-level NSFW indicator.
-- **Legacy/listing-backed screens:** keeps `Link` objects only when
-  `getOver18()` is true.
-- Strict/fail-closed policy: unknown/unreadable Home edges are removed rather
-  than allowed through. A page with zero confirmed NSFW posts may therefore be
-  empty instead of leaking one SFW post.
+## Build and test
 
-## Why v0.2 changed the feed hook
+Pushes to `feature/reddit-2026.24` run the unit tests, build the Morphe bundle, and verify that the resulting `.mpp` contains DEX code. The workflow artifact is a test build, not a claim of verified runtime compatibility.
 
-v0.1 filtered `Listing` / mapped `FeedData` models. Reverse-engineering and
-on-device research in `variablenine/morphe-patches` shows modern Reddit Home is
-GraphQL cell-backed and the mapped feed elements no longer carry an NSFW flag.
-The post-level marker still exists earlier in the response as
-`CellIndicatorType.NSFW` / `IndicatorType.NSFW`.
+## Project origin and license
 
-v0.2 therefore hooks the Home page builder and identifies a post by its `t3_`
-fullname plus an NSFW enum whose type also contains `ORIGINAL`,
-`QUARANTINED` and `SPOILER`. This avoids false positives from unrelated
-Reddit enums that also contain an `NSFW` member.
-
-## Supported target
-
-Reddit `2026.39.0` (`com.reddit.frontpage`).
-
-## Compatibility with other Morphe patches
-
-This source is intended to be used alongside normal Morphe Reddit patches. The
-official **Hide ads** patch also modifies the legacy `Listing` constructor;
-the modern Home hook added here is a separate GraphQL page-builder path.
-
-## Build and publishing
-
-GitHub Actions runs on pushes to `main` (and can be started manually), runs the Android-free scanner/filter tests, builds the Morphe bundle, verifies it contains `classes.dex`, uploads the workflow artifact, and publishes the matching `.mpp` as a GitHub Release asset used by `patches-bundle.json`.
-
-## Origin / license
-
-Modified derivative / adapted GPLv3 work from:
+This repository is maintained separately by **Berkelyum9**. It contains derivative/adapted GPLv3 work from:
 
 - https://github.com/warleysr/reddit-nsfw-blocker
 - https://github.com/MorpheApp/morphe-patches
 - https://github.com/variablenine/morphe-patches
 
-See `LICENSE` and `NOTICE`.
+See `LICENSE` and `NOTICE` for applicable terms.
