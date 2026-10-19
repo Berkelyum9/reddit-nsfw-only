@@ -4,6 +4,8 @@ run-name: Build Reddit NSFW Only bundle
 on:
   workflow_dispatch:
   push:
+    branches: [ main, feature/all-feeds-nsfw-only ]
+  pull_request:
     branches: [ main ]
 
 permissions:
@@ -50,7 +52,7 @@ jobs:
             !patches/build/libs/patches-*-sources.mpp
           if-no-files-found: error
 
-      - name: Publish/update GitHub release asset
+      - name: Publish/update stable GitHub release asset
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -60,9 +62,24 @@ jobs:
           SRC=$(ls patches/build/libs/patches-*.mpp | grep -v -e '-javadoc' -e '-sources' | head -n1)
           ASSET="reddit-nsfw-only-$VERSION.mpp"
           cp "$SRC" "$ASSET"
-
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$ASSET" --clobber
           else
-            gh release create "$TAG" "$ASSET"               --target "$GITHUB_SHA"               --title "Reddit NSFW Only v$VERSION"               --notes "Morphe patch bundle for Reddit NSFW Only v$VERSION."
+            gh release create "$TAG" "$ASSET" --target "$GITHUB_SHA" --title "Reddit NSFW Only v$VERSION" --notes "Morphe patch bundle for Reddit NSFW Only v$VERSION."
+          fi
+
+      - name: Publish/update development prerelease asset
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/all-feeds-nsfw-only'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(sed -n 's/^version = //p' gradle.properties | tr -d '[:space:]')
+          TAG="v$VERSION"
+          SRC=$(ls patches/build/libs/patches-*.mpp | grep -v -e '-javadoc' -e '-sources' | head -n1)
+          ASSET="reddit-nsfw-only-$VERSION.mpp"
+          cp "$SRC" "$ASSET"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ASSET" --clobber
+          else
+            gh release create "$TAG" "$ASSET" --target "$GITHUB_SHA" --prerelease --title "Reddit NSFW Only v$VERSION (experimental)" --notes "Experimental Morphe patch bundle built from feature/all-feeds-nsfw-only. Newer Reddit compatibility and filtering outside Home have not yet been verified."
           fi

@@ -113,6 +113,30 @@ internal object NsfwHomeFeedPageFingerprint : Fingerprint(
 )
 
 /**
+ * Modern section-backed feeds use the same page-mapper signature as Home in Reddit 2026.39.0.
+ * These are optional matches so a changed/absent feed mapper cannot break the working Home patch.
+ */
+internal object NsfwPopularFeedPageFingerprint : Fingerprint(
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    parameters = listOf("L", "Ljava/lang/Integer;", "L"),
+    filters = listOf(
+        fieldAccess(
+            smali = "Lcom/reddit/feeds/data/FeedType;->POPULAR:Lcom/reddit/feeds/data/FeedType;"
+        )
+    )
+)
+
+internal object NsfwLatestFeedPageFingerprint : Fingerprint(
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    parameters = listOf("L", "Ljava/lang/Integer;", "L"),
+    filters = listOf(
+        fieldAccess(
+            smali = "Lcom/reddit/feeds/data/FeedType;->LATEST:Lcom/reddit/feeds/data/FeedType;"
+        )
+    )
+)
+
+/**
  * Sessions (logged in, logged out, incognito) where a user settings item is shown.
  *
  * @param key Settings item key, such as 'key_pref_over18'.

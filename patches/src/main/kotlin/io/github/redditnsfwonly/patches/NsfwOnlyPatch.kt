@@ -45,7 +45,7 @@ private val hideIncognitoNsfwTogglesPatch = resourcePatch {
 val nsfwOnlyPatch = bytecodePatch(
     name = "NSFW only",
     description = "Always enables mature content, disables NSFW blur and safe search, " +
-        "and keeps only confirmed 18+ posts in the modern home feed and legacy listings."
+        "and keeps only confirmed 18+ posts in supported modern feeds and legacy listings."
 ) {
     compatibleWith(COMPATIBILITY_REDDIT)
     extendWith("extensions/nsfwonly.mpe")
@@ -109,6 +109,20 @@ val nsfwOnlyPatch = bytecodePatch(
                 invoke-static/range { p1 .. p1 }, $EXTENSION_CLASS->filterHomeFeedResponse(Ljava/lang/Object;)V
             """
         )
+
+        // These feeds use the same GraphQL cell-response shape when the fingerprint matches.
+        // Keep them optional: the known-good Home hook remains independent and unchanged.
+        listOf(
+            NsfwPopularFeedPageFingerprint,
+            NsfwLatestFeedPageFingerprint
+        ).forEach { fingerprint ->
+            fingerprint.matchOrNull()?.method?.addInstructions(
+                0,
+                """
+                    invoke-static/range { p1 .. p1 }, $EXTENSION_CLASS->filterHomeFeedResponse(Ljava/lang/Object;)V
+                """
+            )
+        }
 
         fun filterListing(fingerprint: Fingerprint) {
             fingerprint.let {
