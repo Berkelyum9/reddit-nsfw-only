@@ -51,7 +51,7 @@ jobs:
           if-no-files-found: error
 
       - name: Publish/update GitHub release asset
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[publish-release]')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
