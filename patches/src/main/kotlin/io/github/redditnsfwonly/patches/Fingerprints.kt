@@ -141,52 +141,16 @@ internal object NsfwLatestFeedPageFingerprint : Fingerprint(
  * These are deliberately optional: only inject the shared response filter when the APK
  * actually contains a mapper matching that feed type and the known three-argument shape.
  */
-internal object NsfwProfileFeedPageFingerprint : Fingerprint(
+/**
+ * Profile post lists use the submitted-posts feed type. Keep this optional so the working Home
+ * fingerprint remains independent if Reddit changes this mapper.
+ */
+internal object NsfwSubmittedPostsFeedPageFingerprint : Fingerprint(
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     parameters = listOf("L", "Ljava/lang/Integer;", "L"),
     filters = listOf(
         fieldAccess(
-            smali = "Lcom/reddit/feeds/data/FeedType;->PROFILE:Lcom/reddit/feeds/data/FeedType;"
-        )
-    )
-)
-
-internal object NsfwUserProfileFeedPageFingerprint : Fingerprint(
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    parameters = listOf("L", "Ljava/lang/Integer;", "L"),
-    filters = listOf(
-        fieldAccess(
-            smali = "Lcom/reddit/feeds/data/FeedType;->USER_PROFILE:Lcom/reddit/feeds/data/FeedType;"
-        )
-    )
-)
-
-internal object NsfwSearchFeedPageFingerprint : Fingerprint(
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    parameters = listOf("L", "Ljava/lang/Integer;", "L"),
-    filters = listOf(
-        fieldAccess(
-            smali = "Lcom/reddit/feeds/data/FeedType;->SEARCH:Lcom/reddit/feeds/data/FeedType;"
-        )
-    )
-)
-
-internal object NsfwAllFeedPageFingerprint : Fingerprint(
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    parameters = listOf("L", "Ljava/lang/Integer;", "L"),
-    filters = listOf(
-        fieldAccess(
-            smali = "Lcom/reddit/feeds/data/FeedType;->ALL:Lcom/reddit/feeds/data/FeedType;"
-        )
-    )
-)
-
-internal object NsfwSubredditFeedPageFingerprint : Fingerprint(
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    parameters = listOf("L", "Ljava/lang/Integer;", "L"),
-    filters = listOf(
-        fieldAccess(
-            smali = "Lcom/reddit/feeds/data/FeedType;->SUBREDDIT:Lcom/reddit/feeds/data/FeedType;"
+            smali = "Lcom/reddit/feeds/data/FeedType;->SUBMITTED_POSTS:Lcom/reddit/feeds/data/FeedType;"
         )
     )
 )
