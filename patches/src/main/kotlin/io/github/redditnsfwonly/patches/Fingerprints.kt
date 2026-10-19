@@ -115,15 +115,6 @@ internal object NsfwHomeFeedPageFingerprint : Fingerprint(
  * These are best-effort shape matches. Each feed hook is optional so an absent or changed
  * mapper cannot break the required Home hook.
  */
-internal object NsfwPopularFeedPageFingerprint : Fingerprint(
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    parameters = listOf("L", "Ljava/lang/Integer;", "L"),
-    filters = listOf(
-        fieldAccess(
-            smali = "Lcom/reddit/feeds/data/FeedType;->POPULAR:Lcom/reddit/feeds/data/FeedType;"
-        )
-    )
-)
 
 internal object NsfwLatestFeedPageFingerprint : Fingerprint(
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
@@ -145,15 +136,6 @@ internal object NsfwSearchFeedPageFingerprint : Fingerprint(
     )
 )
 
-internal object NsfwAllFeedPageFingerprint : Fingerprint(
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    parameters = listOf("L", "Ljava/lang/Integer;", "L"),
-    filters = listOf(
-        fieldAccess(
-            smali = "Lcom/reddit/feeds/data/FeedType;->ALL:Lcom/reddit/feeds/data/FeedType;"
-        )
-    )
-)
 
 internal object NsfwSubredditFeedPageFingerprint : Fingerprint(
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
