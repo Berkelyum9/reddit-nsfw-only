@@ -50,11 +50,12 @@ jobs:
             !patches/build/libs/patches-*-sources.mpp
           if-no-files-found: error
 
-      - name: Publish/update GitHub release asset
+      - name: Publish new stable GitHub release (never overwrite an existing version)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           VERSION=$(sed -n 's/^version = //p' gradle.properties | tr -d '[:space:]')
           TAG="v$VERSION"
           SRC=$(ls patches/build/libs/patches-*.mpp | grep -v -e '-javadoc' -e '-sources' | head -n1)
@@ -62,7 +63,10 @@ jobs:
           cp "$SRC" "$ASSET"
 
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$ASSET" --clobber
-          else
-            gh release create "$TAG" "$ASSET"               --target "$GITHUB_SHA"               --title "Reddit NSFW Only v$VERSION"               --notes "Morphe patch bundle for Reddit NSFW Only v$VERSION."
+            echo "::notice::Release $TAG already exists. Keeping it unchanged; bump version in gradle.properties to publish a new release."
+            exit 0
           fi
+
+          gh release create "$TAG" "$ASSET" --target "$GITHUB_SHA" \
+            --title "Reddit NSFW Only v$VERSION" \
+            --notes "Morphe patch bundle for Reddit NSFW Only v$VERSION."
