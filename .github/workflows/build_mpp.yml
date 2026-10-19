@@ -1,4 +1,5 @@
 name: Build mpp
+run-name: Build Reddit NSFW Only bundle
 
 on:
   workflow_dispatch:
