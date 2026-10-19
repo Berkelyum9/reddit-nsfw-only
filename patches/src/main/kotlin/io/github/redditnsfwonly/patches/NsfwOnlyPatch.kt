@@ -133,11 +133,9 @@ val nsfwOnlyPatch = bytecodePatch(
         // These feeds use the same GraphQL cell-response shape when the fingerprint matches.
         // Keep them optional: the known-good Home hook remains independent and unchanged.
         listOf(
-            NsfwPopularFeedPageFingerprint,
             NsfwLatestFeedPageFingerprint,
             NsfwSubmittedPostsFeedPageFingerprint,
             NsfwSearchFeedPageFingerprint,
-            NsfwAllFeedPageFingerprint,
             NsfwSubredditFeedPageFingerprint
         ).forEach { fingerprint ->
             runCatching { fingerprint.matchOrNull() }
