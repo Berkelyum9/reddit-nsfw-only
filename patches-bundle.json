@@ -1,7 +1,7 @@
 {
   "created_at": "2026-10-19T00:00:00Z",
-  "description": "Reddit NSFW Only: independently maintained experimental patch bundle. Home-feed filtering works; filtering outside Home is not yet verified.",
-  "download_url": "https://github.com/Berkelyum9/reddit-nsfw-only/releases/download/v0.2.1/reddit-nsfw-only-0.2.1.mpp",
+  "description": "Reddit NSFW Only v0.2.3 experimental: restores the known-good v0.2.0 Home fingerprint and adds optional feed filters.",
+  "download_url": "https://github.com/Berkelyum9/reddit-nsfw-only/releases/download/v0.2.3/reddit-nsfw-only-0.2.3.mpp",
   "signature_download_url": "",
-  "version": "0.2.1"
+  "version": "0.2.3"
 }
