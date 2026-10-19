@@ -64,5 +64,21 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$ASSET" --clobber
           else
-            gh release create "$TAG" "$ASSET"               --target "$GITHUB_SHA"               --title "Reddit NSFW Only v$VERSION"               --notes "Morphe patch bundle for Reddit NSFW Only v$VERSION."
+            gh release create "$TAG" "$ASSET" --target "$GITHUB_SHA" --title "Reddit NSFW Only v$VERSION" --notes "Morphe patch bundle for Reddit NSFW Only v$VERSION."
           fi
+
+      - name: Publish latest 2026.24 test build as prerelease
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/reddit-2026.24' && contains(github.event.head_commit.message, '[publish-prerelease]')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(sed -n 's/^version = //p' gradle.properties | tr -d '[:space:]')
+          TAG="v${VERSION}-reddit-2026.24-preview.1"
+          SRC=$(ls patches/build/libs/patches-*.mpp | grep -v -e '-javadoc' -e '-sources' | head -n1)
+          ASSET="reddit-nsfw-only-${VERSION}-reddit-2026.24-preview.1.mpp"
+          cp "$SRC" "$ASSET"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Refusing to overwrite existing prerelease tag $TAG"
+            exit 1
+          fi
+          gh release create "$TAG" "$ASSET" --target "$GITHUB_SHA" --prerelease --title "Reddit NSFW Only ${VERSION} — Reddit 2026.24 test (preview)" --notes "Experimental prerelease built from feature/reddit-2026.24. Build and package checks passed; actual application to Reddit 2026.24.0 and feed behavior still require testing in Morphe. This prerelease does not replace stable v0.2.0."
