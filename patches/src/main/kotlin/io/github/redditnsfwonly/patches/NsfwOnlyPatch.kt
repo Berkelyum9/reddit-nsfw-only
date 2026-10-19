@@ -115,8 +115,7 @@ val nsfwOnlyPatch = bytecodePatch(
         listOf(
             NsfwPopularFeedPageFingerprint,
             NsfwLatestFeedPageFingerprint,
-            NsfwProfileFeedPageFingerprint,
-            NsfwUserProfileFeedPageFingerprint,
+            NsfwSubmittedPostsFeedPageFingerprint,
             NsfwSearchFeedPageFingerprint,
             NsfwAllFeedPageFingerprint,
             NsfwSubredditFeedPageFingerprint
