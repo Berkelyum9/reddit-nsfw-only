@@ -91,14 +91,17 @@ val nsfwOnlyPatch = bytecodePatch(
         } ?: logger.warning("Could not find the safe search repository")
 
         listOf("key_pref_over18", "key_pref_blur_nsfw").forEach { key ->
-            settingsItemSessionsFingerprint(key).matchOrNull()?.method?.addInstructions(
-                0,
-                """
-                    invoke-static { }, Ljava/util/Collections;->emptySet()Ljava/util/Set;
-                    move-result-object p0
-                    return-object p0
-                """
-            ) ?: logger.severe("Could not hide the '$key' settings item")
+            runCatching { settingsItemSessionsFingerprint(key).matchOrNull() }
+                .getOrNull()?.method?.addInstructions(
+                    0,
+                    """
+                        invoke-static { }, Ljava/util/Collections;->emptySet()Ljava/util/Set;
+                        move-result-object p0
+                        return-object p0
+                    """
+                ) ?: logger.warning(
+                    "Could not match the '$key' settings item on this Reddit version; continuing."
+                )
         }
 
         // Modern Home is GraphQL cell-backed. By the time Reddit has built FeedData/feed
@@ -143,6 +146,8 @@ val nsfwOnlyPatch = bytecodePatch(
                 }
             }
         }
-        filterListing(ListingFingerprint)
+        runCatching { ListingFingerprint.matchOrNull() }
+            .getOrNull()?.let { filterListing(it) }
+            ?: logger.warning("Could not match the legacy Listing constructor; skipping that filter.")
     }
 }
