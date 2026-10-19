@@ -100,12 +100,87 @@ internal object SafeSearchEnabledFingerprint : Fingerprint(
 )
 
 internal object NsfwHomeFeedPageFingerprint : Fingerprint(
-    definingClass = "Lcom/reddit/feeds/home/impl/data/paging/",
+    // In Reddit 2026.39.0 the page mapper is R8-renamed to Lseo;->c. The HOME enum
+    // access plus this three-argument signature uniquely identifies the mapper even
+    // though Reddit no longer preserves its original package name.
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     parameters = listOf("L", "Ljava/lang/Integer;", "L"),
     filters = listOf(
         fieldAccess(
             smali = "Lcom/reddit/feeds/data/FeedType;->HOME:Lcom/reddit/feeds/data/FeedType;"
+        )
+    )
+)
+
+/**
+ * Modern section-backed feeds use the same page-mapper signature as Home in Reddit 2026.39.0.
+ * These are optional matches so a changed/absent feed mapper cannot break the working Home patch.
+ */
+internal object NsfwPopularFeedPageFingerprint : Fingerprint(
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    parameters = listOf("L", "Ljava/lang/Integer;", "L"),
+    filters = listOf(
+        fieldAccess(
+            smali = "Lcom/reddit/feeds/data/FeedType;->POPULAR:Lcom/reddit/feeds/data/FeedType;"
+        )
+    )
+)
+
+internal object NsfwLatestFeedPageFingerprint : Fingerprint(
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    parameters = listOf("L", "Ljava/lang/Integer;", "L"),
+    filters = listOf(
+        fieldAccess(
+            smali = "Lcom/reddit/feeds/data/FeedType;->LATEST:Lcom/reddit/feeds/data/FeedType;"
+        )
+    )
+)
+
+internal object NsfwSearchFeedPageFingerprint : Fingerprint(
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    parameters = listOf("L", "Ljava/lang/Integer;", "L"),
+    filters = listOf(
+        fieldAccess(
+            smali = "Lcom/reddit/feeds/data/FeedType;->SEARCH:Lcom/reddit/feeds/data/FeedType;"
+        )
+    )
+)
+
+internal object NsfwAllFeedPageFingerprint : Fingerprint(
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    parameters = listOf("L", "Ljava/lang/Integer;", "L"),
+    filters = listOf(
+        fieldAccess(
+            smali = "Lcom/reddit/feeds/data/FeedType;->ALL:Lcom/reddit/feeds/data/FeedType;"
+        )
+    )
+)
+
+internal object NsfwSubredditFeedPageFingerprint : Fingerprint(
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    parameters = listOf("L", "Ljava/lang/Integer;", "L"),
+    filters = listOf(
+        fieldAccess(
+            smali = "Lcom/reddit/feeds/data/FeedType;->SUBREDDIT:Lcom/reddit/feeds/data/FeedType;"
+        )
+    )
+)
+
+/**
+ * Additional page mappers used by search, profile, subreddit and aggregate feeds.
+ * These are deliberately optional: only inject the shared response filter when the APK
+ * actually contains a mapper matching that feed type and the known three-argument shape.
+ */
+/**
+ * Profile post lists use the submitted-posts feed type. Keep this optional so the working Home
+ * fingerprint remains independent if Reddit changes this mapper.
+ */
+internal object NsfwSubmittedPostsFeedPageFingerprint : Fingerprint(
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    parameters = listOf("L", "Ljava/lang/Integer;", "L"),
+    filters = listOf(
+        fieldAccess(
+            smali = "Lcom/reddit/feeds/data/FeedType;->SUBMITTED_POSTS:Lcom/reddit/feeds/data/FeedType;"
         )
     )
 )
