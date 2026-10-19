@@ -100,9 +100,8 @@ internal object SafeSearchEnabledFingerprint : Fingerprint(
 )
 
 internal object NsfwHomeFeedPageFingerprint : Fingerprint(
-    // In Reddit 2026.39.0 the page mapper is R8-renamed to Lseo;->c. The HOME enum
-    // access plus this three-argument signature uniquely identifies the mapper even
-    // though Reddit no longer preserves its original package name.
+    // Shape-based mapper fingerprint. This shape was observed on Reddit 2026.39.0;
+    // compatibility with the configured 2026.24.0 target must be verified by applying the patch.
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     parameters = listOf("L", "Ljava/lang/Integer;", "L"),
     filters = listOf(
@@ -113,8 +112,8 @@ internal object NsfwHomeFeedPageFingerprint : Fingerprint(
 )
 
 /**
- * Modern section-backed feeds use the same page-mapper signature as Home in Reddit 2026.39.0.
- * These are optional matches so a changed/absent feed mapper cannot break the working Home patch.
+ * These are best-effort shape matches. Each feed hook is optional so an absent or changed
+ * mapper cannot break the required Home hook.
  */
 internal object NsfwPopularFeedPageFingerprint : Fingerprint(
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
@@ -166,11 +165,6 @@ internal object NsfwSubredditFeedPageFingerprint : Fingerprint(
     )
 )
 
-/**
- * Additional page mappers used by search, profile, subreddit and aggregate feeds.
- * These are deliberately optional: only inject the shared response filter when the APK
- * actually contains a mapper matching that feed type and the known three-argument shape.
- */
 /**
  * Profile post lists use the submitted-posts feed type. Keep this optional so the working Home
  * fingerprint remains independent if Reddit changes this mapper.
