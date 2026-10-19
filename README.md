@@ -1,18 +1,19 @@
 # Reddit NSFW Only
 
-An experimental Morphe patch bundle for Reddit Android that deliberately does
-the inverse of `warleysr/reddit-nsfw-blocker`.
+An independently maintained Morphe patch bundle for Reddit Android. This project
+maintains its own code changes, builds, and releases; it does not download its
+patch bundle from the original derivative repository.
 
 ## Add to Morphe
 
 Add this repository as a **Remote** patch source:
 
 ```text
-https://github.com/nathan8ate-droid/reddit-nsfw-only
+https://github.com/Berkelyum9/reddit-nsfw-only
 ```
 
-Morphe resolves `patches-bundle.json` from `main` and can update the source
-automatically when a newer bundle is published.
+Morphe reads this project's `patches-bundle.json` and downloads the release
+asset published by this repository.
 
 ## Behaviour
 
@@ -28,32 +29,17 @@ automatically when a newer bundle is published.
   than allowed through. A page with zero confirmed NSFW posts may therefore be
   empty instead of leaking one SFW post.
 
-## Why v0.2 changed the feed hook
-
-v0.1 filtered `Listing` / mapped `FeedData` models. Reverse-engineering and
-on-device research in `variablenine/morphe-patches` shows modern Reddit Home is
-GraphQL cell-backed and the mapped feed elements no longer carry an NSFW flag.
-The post-level marker still exists earlier in the response as
-`CellIndicatorType.NSFW` / `IndicatorType.NSFW`.
-
-v0.2 therefore hooks the Home page builder and identifies a post by its `t3_`
-fullname plus an NSFW enum whose type also contains `ORIGINAL`,
-`QUARANTINED` and `SPOILER`. This avoids false positives from unrelated
-Reddit enums that also contain an `NSFW` member.
-
 ## Compatibility
 
 Target app: Reddit Android (`com.reddit.frontpage`).
 
-The patch source now allows Morphe to **attempt** patching newer Reddit versions
-instead of listing only `2026.39.0`. This is experimental compatibility, not
-a guarantee that a future version will work: Reddit can rename or restructure
-methods, and required fingerprints may still fail. A successful bundle build
-only verifies compilation; each new Reddit version needs its own APK-level
-fingerprint and on-device feed checks before it can be called verified.
+Compatibility with newer Reddit versions is experimental. Reddit can rename or
+restructure methods, and required fingerprints may fail. A successful build
+only verifies compilation; each target version needs APK-level fingerprint and
+on-device feed checks before it can be called verified.
 
-The expanded Popular/Latest hooks on the development branch are also
-experimental and are not yet confirmed to filter those screens correctly.
+The expanded Popular/Latest hooks on the development branch are experimental
+and are not yet confirmed to filter those screens correctly.
 
 ## Compatibility with other Morphe patches
 
@@ -63,17 +49,20 @@ the modern Home hook added here is a separate GraphQL page-builder path.
 
 ## Build and publishing
 
-GitHub Actions runs on pushes to `main` (and can be started manually), runs the
-Android-free scanner/filter tests, builds the Morphe bundle, verifies it
-contains `classes.dex`, uploads the workflow artifact, and publishes the
-matching `.mpp` as a GitHub Release asset used by `patches-bundle.json`.
+GitHub Actions runs tests, builds the Morphe bundle, verifies it contains
+`classes.dex`, uploads the workflow artifact, and publishes release assets
+from this repository. Older releases should remain available as separate
+versioned releases.
 
 ## Origin / license
 
-Modified derivative / adapted GPLv3 work from:
+This is an independently maintained derivative, not a copy of another
+project's release pipeline. Portions of the code are derived from GPLv3 work;
+required upstream attribution and licence notices are preserved in `LICENSE`
+and `NOTICE`:
 
 - https://github.com/warleysr/reddit-nsfw-blocker
 - https://github.com/MorpheApp/morphe-patches
 - https://github.com/variablenine/morphe-patches
 
-See `LICENSE` and `NOTICE`.
+This project is not affiliated with or endorsed by those projects or Reddit.
