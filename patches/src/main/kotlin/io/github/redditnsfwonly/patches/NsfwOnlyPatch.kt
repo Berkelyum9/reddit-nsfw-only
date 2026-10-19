@@ -114,7 +114,12 @@ val nsfwOnlyPatch = bytecodePatch(
         // Keep them optional: the known-good Home hook remains independent and unchanged.
         listOf(
             NsfwPopularFeedPageFingerprint,
-            NsfwLatestFeedPageFingerprint
+            NsfwLatestFeedPageFingerprint,
+            NsfwProfileFeedPageFingerprint,
+            NsfwUserProfileFeedPageFingerprint,
+            NsfwSearchFeedPageFingerprint,
+            NsfwAllFeedPageFingerprint,
+            NsfwSubredditFeedPageFingerprint
         ).forEach { fingerprint ->
             fingerprint.matchOrNull()?.method?.addInstructions(
                 0,
